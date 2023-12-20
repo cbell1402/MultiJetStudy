@@ -1,4 +1,7 @@
 *.log
 *.lhe
 *.root
+*.png
+*.pdf
+py.py
 ppTo6jet
