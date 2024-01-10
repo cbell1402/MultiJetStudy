@@ -10,6 +10,10 @@ from statistics import mean
 import numpy
 from itertools import combinations
 
+# Book histograms
+# TH1F::TH1F(const char* name, const char* title, int nbinsx, double xlow, double xup) =>
+histGenJetM = ROOT.TH1F("3Jet_mass", "3Jet Mass; 3Jet Mass; #", 100, 0.0, 1000.0)
+
 lhe_file = "current_unweighted_events.lhe"
 events = pylhe.read_lhe_with_attributes(lhe_file)
 num_events = pylhe.read_num_events(lhe_file)
@@ -48,8 +52,9 @@ print(arr.type.show())
 #print(arr[i].particles.vector.mass)
 
 
-for i in range(0, 1):
+for i in range(0, 1000):
     event_list = []
+    print(i)
     for part in arr[i].particles:
         if part.status == 1:
             particle_list = []
@@ -62,18 +67,19 @@ for i in range(0, 1):
             #print(part.mother2)
             event_list.append(particle_list)
     #print(particle_list)
-    print(" ")
-    print(event_list)
+    #print(" ")
+    #print(event_list)
     comb = combinations(event_list, 3)
-    print(" ")
+    #print(" ")
     for j in list(comb):
         four_vec = j[0][0] + j[1][0] + j[2][0]
-        print(four_vec.m)
+        histGenJetM.Fill(four_vec.m)
+        #print(four_vec.m)
     #print(list(comb))
     #print(len(comb))
     #print(event_list[6])
     #print(event_list[6][0])
-    new_vec = event_list[0][0] + event_list[1][0] + event_list[2][0]
+    #new_vec = event_list[0][0] + event_list[1][0] + event_list[2][0]
     #print(new_vec.m)
 
     #print(particle_list[0][1])
@@ -95,4 +101,10 @@ for i in range(0, 1):
 
 #for i in range(0, num_events):
 #    print(arr[i].eventinfo.nparticles)
+
+c0 = ROOT.TCanvas()
+c0.Update()
+histGenJetM.Draw()
+c0.Print("3JetMass.png")
+c0.Clear()
 
