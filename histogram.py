@@ -3,6 +3,7 @@
 import ROOT
 import pylhe
 from itertools import combinations
+from collections import Counter
 
 
 def savehist(hist, histname):
@@ -43,7 +44,7 @@ print(f"Particle Spin:", arr[i].particles.spin)
 print(" ")
 print(arr.type.show())
 
-for i in range(0, 1):
+for i in range(0, 10000):
     if (i % 100) == 0:
         print(i)
     event_list = []
@@ -64,43 +65,87 @@ for i in range(0, 1):
     for j in list(comb):
         four_vec = j[0][0] + j[1][0] + j[2][0]
         hist3JetM.Fill(four_vec.m)
+        #print(j)
+        pdgid_list = []
+        par_pdgid_list = []
+        for k in range(0,3):
+            pdgid_list.append(j[k][1])
+            par_pdgid_list.append(arr[i].particles[int(j[k][2]) - 1].id)
 
-        print(f"PDGID:", arr[i].particles[int(j[1][2]) - 1].id)
+        counter = Counter(par_pdgid_list)
 
-        if (abs(j[0][1]) == 5 and abs(j[1][1]) == 5) or (abs(j[0][1]) == 5 and abs(j[2][1]) == 5) or (abs(j[1][1]) == 5 and abs(j[2][1]) == 5):
-            #four_vec = j[0][0] + j[1][0] + j[2][0]
+        #print(pdgid_list)
+        #print(par_pdgid_list)
+        #print(f"PDGID 1:", j[0][1])
+        #print(f"PDGID 2:", j[1][1])
+        #print(f"PDGID 3:", j[2][1])
+        #print(f"Par PDGID 1:", arr[i].particles[int(j[0][2]) - 1].id)
+        #print(f"Par PDGID 2:", arr[i].particles[int(j[1][2]) - 1].id)
+        #print(f"Par PDGID 3:", arr[i].particles[int(j[2][2]) - 1].id)
+
+        if (-5 in pdgid_list) and (5 in pdgid_list):
             hist3JetM_2b.Fill(four_vec.m)
+            #print("First If")
+            #print(j)
+        #if (abs(j[0][1]) == 5 and abs(j[1][1]) == 5) or (abs(j[0][1]) == 5 and abs(j[2][1]) == 5) or (abs(j[1][1]) == 5 and abs(j[2][1]) == 5):
+        #    #four_vec = j[0][0] + j[1][0] + j[2][0]
+            #hist3JetM_2b.Fill(four_vec.m)
+            #print("Second Condition")
 
-        if (j[0][2] in {4, 6}) and (j[1][2] in {4, 6}) and (j[2][2] in {4, 6}):
-            #four_vec = j[0][0] + j[1][0] + j[2][0]
+        if all(abs(x) == 24 for x in par_pdgid_list):
             hist3JetM_wdecay.Fill(four_vec.m)
+            #print(j)
+            #print(par_pdgid_list)
 
-        if (j[0][1] == 5 and (j[1][2] == 4 and j[2][2] == 4)) or (j[1][1] == 5 and (j[0][2] == 4 and j[2][2] == 4)) or (j[2][1] == 5 and (j[0][2] == 4 and j[1][2] == 4)):
+        #if (j[0][2] in {4, 6}) and (j[1][2] in {4, 6}) and (j[2][2] in {4, 6}):
+            #print(j)
+            #print(par_pdgid_list)
             #four_vec = j[0][0] + j[1][0] + j[2][0]
+            #hist3JetM_wdecay.Fill(four_vec.m)
+
+        #print(counter)
+        #print(counter[-24])
+
+        if (5 in pdgid_list) and counter[-24] == 2:
+            #print("New Condition")
+            #print(j)
             hist3JetM_mixed.Fill(four_vec.m)
-            print("b with W- products")
-            print(f"Inv Mass:", four_vec.m)
+
+        #if (j[0][1] == 5 and (j[1][2] == 4 and j[2][2] == 4)) or (j[1][1] == 5 and (j[0][2] == 4 and j[2][2] == 4)) or (j[2][1] == 5 and (j[0][2] == 4 and j[1][2] == 4)):
+            #four_vec = j[0][0] + j[1][0] + j[2][0]
+            #print("Old Condition")
+            #hist3JetM_mixed.Fill(four_vec.m)
+            #print("b with W- products")
+            #print(f"Inv Mass:", four_vec.m)
             #print(" ")
             #print(j)
             #print("First If")
-        elif (j[0][1] == -5 and (j[1][2] == 6 and j[2][2] == 6)) or (j[1][1] == -5 and (j[0][2] == 6 and j[2][2] == 6)) or (j[2][1] == -5 and (j[0][2] == 6 and j[1][2] == 6)):
-            #four_vec = j[0][0] + j[1][0] + j[2][0]
+        elif (-5 in pdgid_list) and counter[24] == 2:
             hist3JetM_mixed.Fill(four_vec.m)
-            print("b~ with W+ products")
-            print(f"Inv Mass:", four_vec.m)
+
+        #elif (j[0][1] == -5 and (j[1][2] == 6 and j[2][2] == 6)) or (j[1][1] == -5 and (j[0][2] == 6 and j[2][2] == 6)) or (j[2][1] == -5 and (j[0][2] == 6 and j[1][2] == 6)):
+            #four_vec = j[0][0] + j[1][0] + j[2][0]
+            #hist3JetM_mixed.Fill(four_vec.m)
+            #print("b~ with W+ products")
+            #print(f"Inv Mass:", four_vec.m)
             #print(" ")
             #print(j)
             #print("Second If")
-        elif (j[0][1] == -5 and (j[1][2] == 4 and j[2][2] == 4)) or (j[1][1] == -5 and (j[0][2] == 4 and j[2][2] == 4)) or (j[2][1] == -5 and (j[0][2] == 4 and j[1][2] == 4)):
-            #four_vec = j[0][0] + j[1][0] + j[2][0]
+        elif (-5 in pdgid_list) and counter[-24] == 2:
             hist3JetM_mixed_correct.Fill(four_vec.m)
-            print("b~ with W- products")
-            print(f"Inv Mass:", four_vec.m)
-        elif (j[0][1] == 5 and (j[1][2] == 6 and j[2][2] == 6)) or (j[1][1] == 5 and (j[0][2] == 6 and j[2][2] == 6)) or (j[2][1] == 5 and (j[0][2] == 6 and j[1][2] == 6)):
+
+        #elif (j[0][1] == -5 and (j[1][2] == 4 and j[2][2] == 4)) or (j[1][1] == -5 and (j[0][2] == 4 and j[2][2] == 4)) or (j[2][1] == -5 and (j[0][2] == 4 and j[1][2] == 4)):
             #four_vec = j[0][0] + j[1][0] + j[2][0]
+        #    hist3JetM_mixed_correct.Fill(four_vec.m)
+            #print("b~ with W- products")
+            #print(f"Inv Mass:", four_vec.m)
+        elif (5 in pdgid_list) and counter[24] == 2:
             hist3JetM_mixed_correct.Fill(four_vec.m)
-            print("b with W+ products")
-            print(f"Inv Mass:", four_vec.m)
+        #elif (j[0][1] == 5 and (j[1][2] == 6 and j[2][2] == 6)) or (j[1][1] == 5 and (j[0][2] == 6 and j[2][2] == 6)) or (j[2][1] == 5 and (j[0][2] == 6 and j[1][2] == 6)):
+            #four_vec = j[0][0] + j[1][0] + j[2][0]
+            #hist3JetM_mixed_correct.Fill(four_vec.m)
+            #print("b with W+ products")
+            #print(f"Inv Mass:", four_vec.m)
         else:
             continue
 
