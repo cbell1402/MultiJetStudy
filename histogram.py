@@ -26,16 +26,9 @@ if len(sys.argv) < 2:
 # p p > t t~, (t > w+ b, (w+ > j j)), (t~ > w- b~, (w- > j j))
 myFile = ROOT.TFile.Open("MultiJet_histograms.root", "RECREATE")
 
-#bins = 20
-#hist3JetM = ROOT.TH1F("3Jet_mass", "3Jet Mass; 3Jet Mass", bins, 0.0, 1000.0)
-#hist3JetM_2b = ROOT.TH1F("3Jet_mass", "Two b 3Jet Mass; 3Jet Mass", bins, 0.0, 1000.0)
-#hist3JetM_wdecay = ROOT.TH1F("3Jet_mass", "W Decay 3Jet Mass; 3Jet Mass", bins, 0.0, 1000.0)
-#hist3JetM_mixed = ROOT.TH1F("3Jet_mass", "Mixed 3Jet Mass; 3Jet Mass", bins, 0.0, 1000.0)
-#hist3JetM_mixed_correct = ROOT.TH1F("3Jet_mass", "UnMixed 3Jet Mass; 3Jet Mass", bins, 0.0, 1000.0)
-
 h = {}
 bins = [20, 50]
-combs = ["all", "2b", "wdecay", "mixed", "unmixed"]
+combs = ["all", "2b", "wdecay", "bwithmixedq", "mixed", "unmixed"]
 # Book histograms
 # TH1F::TH1F(const char* name, const char* title, int nbinsx, double xlow, double xup) =>
 for binconfig in bins:
@@ -50,7 +43,7 @@ print(f"Number of events:", num_events)
 arr = pylhe.to_awkward(events)
 
 #i = 0
-print(f"Particle IDs:", arr[0].particles.id)
+#print(f"Particle IDs:", arr[0].particles.id)
 #print(f"Particle Status:", arr[i].particles.status)
 #print(f"Particle Mother1:", arr[i].particles.mother1)
 #print(f"Particle Mother2:", arr[i].particles.mother2)
@@ -61,7 +54,7 @@ print(f"Particle IDs:", arr[0].particles.id)
 #print(f"Particle Spin:", arr[i].particles.spin)
 #print(arr.type.show())
 
-for i in range(0, 1):
+for i in range(0, 1000):
     if (i % 100) == 0:
         print(i)
     event_list = []
@@ -89,9 +82,6 @@ for i in range(0, 1):
             pdgid_list.append(j[k][1])
             par_pdgid_list.append(arr[i].particles[int(j[k][2]) - 1].id)
 
-        print(f"PDGID",pdgid_list)
-        print(f"Parent PDGID", par_pdgid_list)
-
         counter = Counter(par_pdgid_list)
 
         if (-5 in pdgid_list) and (5 in pdgid_list):
@@ -102,22 +92,23 @@ for i in range(0, 1):
             for binconfig in bins:
                 h[f"hist3JetM_wdecay_{binconfig}"].Fill(four_vec.m)
 
-        #if 5 in pdgid_list:
+        if (24 in par_pdgid_list) and (-24 in par_pdgid_list) and (any(abs(x) == 5 for x in pdgid_list)):
+            for binconfig in bins:
+                h[f"hist3JetM_bwithmixedq_{binconfig}"].Fill(four_vec.m)
 
-
-        if (5 in pdgid_list) and counter[-24] == 2:
+        if counter[-24] == 2 and (5 in pdgid_list):
             for binconfig in bins:
                 h[f"hist3JetM_mixed_{binconfig}"].Fill(four_vec.m)
 
-        elif (-5 in pdgid_list) and counter[24] == 2:
+        elif counter[24] == 2 and (-5 in pdgid_list):
             for binconfig in bins:
                 h[f"hist3JetM_mixed_{binconfig}"].Fill(four_vec.m)
 
-        elif (-5 in pdgid_list) and counter[-24] == 2:
+        elif counter[-24] == 2 and (-5 in pdgid_list):
             for binconfig in bins:
                 h[f"hist3JetM_unmixed_{binconfig}"].Fill(four_vec.m)
 
-        elif (5 in pdgid_list) and counter[24] == 2:
+        elif counter[24] == 2 and (5 in pdgid_list):
             for binconfig in bins:
                 h[f"hist3JetM_unmixed_{binconfig}"].Fill(four_vec.m)
         else:
@@ -129,7 +120,7 @@ c0.SetLogy()
 for key,value in h.items():
     c0.Update()
     value.Draw("E")
-    c0.Print(f"{key}.png")
+    c0.Print(f"pics/{key}.png")
     c0.Clear()
     savehist(value, key)
 
