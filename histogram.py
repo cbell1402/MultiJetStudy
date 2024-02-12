@@ -24,7 +24,12 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 # p p > t t~, (t > w+ b, (w+ > j j)), (t~ > w- b~, (w- > j j))
-myFile = ROOT.TFile.Open("MultiJet_histograms.root", "RECREATE")
+with open(sys.argv[1], 'r') as file:
+        run_no = next(part for part in file.read().split("/") if "run_" in part)
+print(run_no)
+myFile = ROOT.TFile.Open("MultiJet_histograms_{}.root".format(run_no), "RECREATE")
+
+#myFile = ROOT.TFile.Open("MultiJet_histograms.root", "RECREATE")
 
 h = {}
 bins = [20, 50]
